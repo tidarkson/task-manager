@@ -5,7 +5,7 @@ const taskSchema = new mongoose.Schema(
     {
         description: {
             type: String,
-              required: true,
+            required: true,
             trim: true
         },
 
@@ -13,13 +13,13 @@ const taskSchema = new mongoose.Schema(
             type: Boolean,
             required: true
         },
-        author : {
+        author: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref : "User"
+            ref: "User"
         },
 
-        name : {
+        name: {
             type: mongoose.Schema.Types.String,
             ref: "User"
         }
@@ -27,12 +27,12 @@ const taskSchema = new mongoose.Schema(
     {
         timestamps: true
     }
-) 
+)
 
-taskSchema.pre('save', async function (next){
-        const task = this
+taskSchema.pre('save', async function (next) {
+    const task = this
 
-        next()
+    next()
 })
 
 const Task = mongoose.model("Task", taskSchema)

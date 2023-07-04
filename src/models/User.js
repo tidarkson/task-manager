@@ -7,7 +7,7 @@ const Task = require("./Tasks")
 mongoose.connect("mongodb://127.0.0.1:27017/task-manager-api", {
     useNewUrlParser: true,
 })
- 
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     },
 
     age: {
-        type: Number 
+        type: Number
     },
 
     email: {
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
         trim: true,
         lowercase: true,
-        validate(value){
+        validate(value) {
             if (!validator.isEmail(value)) {
                 throw new Error("Email is not a valid email")
             }
@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    
+
     tokens: [
         {
             token: {
@@ -57,7 +57,7 @@ userSchema.virtual("tasks", {
 
 // HASHING ALGORITHM TO ENCRYPT USER PASSWORD/SAVE USER
 
-userSchema.pre('save', async function (next){
+userSchema.pre('save', async function (next) {
     const user = this
     if (user.isModified("password")) {
         user.password = await bcrypt.hash(user.password, 8)
@@ -68,15 +68,15 @@ userSchema.pre('save', async function (next){
 // HASHING ALGORITHM TO DECRYPT USER PASSWORD/ LOGIN
 
 userSchema.statics.findByCredentials = async (email, password) => {
-    const user = await User.findOne({email})
+    const user = await User.findOne({ email })
 
-    if(!user) {
+    if (!user) {
         throw new Error("Unable to login")
     }
 
     const isMatch = await bcrypt.compare(password, user.password)
-    
-    if(!isMatch) {
+
+    if (!isMatch) {
         throw new Error("Unable to login")
     }
 
@@ -90,7 +90,7 @@ userSchema.methods.toJSON = function () {
     const userObject = user.toObject()
 
     delete userObject.password
-    delete userObject.tokens 
+    delete userObject.tokens
 
     return userObject
 }
@@ -100,9 +100,9 @@ userSchema.methods.toJSON = function () {
 userSchema.methods.accessToken = function () {
     const user = this
 
-    const token = jwt.sign({_id: user._id.toString()}, "access_token")
+    const token = jwt.sign({ _id: user._id.toString() }, "access_token")
 
-    user.tokens = user.tokens.concat({token})
+    user.tokens = user.tokens.concat({ token })
 
     user.save()
     return token
@@ -113,10 +113,10 @@ userSchema.methods.accessToken = function () {
 userSchema.pre("remove", async function (next) {
     const user = this
 
-    await Task.deleteMany({author: user._id})
+    await Task.deleteMany({ author: user._id })
 
     next()
-} )
+})
 
 
 const User = mongoose.model("User", userSchema)
